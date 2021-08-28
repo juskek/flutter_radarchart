@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 
+import 'package:flutter_radarchart/data.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -12,6 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: new ThemeData(scaffoldBackgroundColor: Colors.white),
       title: 'Radar Chart',
       home: MyHomePage(title: 'Radar Chart Demo'),
     );
@@ -26,10 +29,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
-  int nodes = 5;
-  int segments = 4;
-  List<double> data = [0.7, 0.6, 0.5, 0.8, 0.75];
-  List<String> labels = ['A', 'B', 'C', 'D', 'E'];
+  // int nodes = 5;
+  // int segments = 4;
+  // List<double> data = [0.7, 0.6, 0.5, 0.8, 0.75];
+  // List<String> labels = ['A', 'B', 'C', 'D', 'E'];
 
   late final AnimationController _controller = AnimationController(
     duration: Duration(seconds: 3), // ANITIME
@@ -52,7 +55,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         // child: CustomPaint(
         //   painter: RadarChartPainter(_controller.value),
         // ),
-        child: RadarChartTransition(_controller, nodes, segments, data, labels),
+        // child: RadarChartTransition(_controller, nodes, segments, data, labels),
+        child: RadarChartTransition(_controller, radarChartData),
       ),
     );
   }
@@ -68,11 +72,12 @@ class RadarChartTransition extends AnimatedWidget {
   // CONSTRUCTOR
   RadarChartTransition(
     this.controller,
-    this.nodes,
-    this.segments,
-    this.data,
-    this.labels,
-  ) : super(listenable: controller);
+    RadarChartData radarChartData,
+  )   : this.nodes = radarChartData.nodes,
+        this.segments = radarChartData.segments,
+        this.data = radarChartData.data,
+        this.labels = radarChartData.labels,
+        super(listenable: controller);
 
   // GETTER
   AnimationController get _animationController =>
@@ -80,7 +85,7 @@ class RadarChartTransition extends AnimatedWidget {
 
   // TWEEN
   // tween sequence for popping effect
-  TweenSequence<double> poppingTweenSeq = TweenSequence<double>(
+  final TweenSequence<double> poppingTweenSeq = TweenSequence<double>(
     <TweenSequenceItem<double>>[
       TweenSequenceItem<double>(
         tween: Tween<double>(begin: 0, end: 1.5)
@@ -96,7 +101,7 @@ class RadarChartTransition extends AnimatedWidget {
   );
 
   // tween for fast to slow effect
-  Tween<double> easeOutTween = Tween(begin: 0, end: 1);
+  final Tween<double> easeOutTween = Tween(begin: 0, end: 1);
 
   // function which returns the tween sequence as a part of the animation progress
   Animation<double> _tweenSeqVal(start, end) {
@@ -213,7 +218,7 @@ class RadarChartPainter extends CustomPainter {
     List<List<double>> points = [];
     // for each branch
     for (int i = 0; i < nodes; i++) {
-      final double lineLength = 200 * branchAniProgress[i];
+      final double lineLength = 100 * branchAniProgress[i];
       // paint styles
       // branch
       final lineStyle = Paint()
@@ -302,7 +307,7 @@ class RadarChartPainter extends CustomPainter {
         ..layout(ui.ParagraphConstraints(width: size.width));
       var temp =
           Offset(points[i][0] - fontHeight / 4, points[i][1] - fontHeight / 2) *
-              1.1;
+              1.2;
       canvas.drawParagraph(labelPara, temp);
     }
   }
